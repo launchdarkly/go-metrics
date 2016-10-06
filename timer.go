@@ -18,6 +18,10 @@ type Timer interface {
 	Min() int64
 	Percentile(float64) float64
 	Percentiles([]float64) []float64
+	Rate1() float64
+	Rate5() float64
+	Rate15() float64
+	RateMean() float64
 	Snapshot() Timer
 	StdDev() float64
 	Sum() int64
@@ -36,13 +40,14 @@ func GetOrRegisterTimer(name string, r Registry) Timer {
 	return r.GetOrRegister(name, NewTimer).(Timer)
 }
 
-// NewCustomTimer constructs a new StandardTimer from a Histogram.
-func NewCustomTimer(h Histogram) Timer {
+// NewCustomTimer constructs a new StandardTimer from a Histogram and a Meter.
+func NewCustomTimer(h Histogram, m Meter) Timer {
 	if UseNilMetrics {
 		return NilTimer{}
 	}
 	return &StandardTimer{
 		histogram: h,
+		meter:     m,
 	}
 }
 
@@ -63,12 +68,14 @@ func NewTimer() Timer {
 	}
 	return &StandardTimer{
 		histogram: NewHistogram(NewUniformSample(histogram_pool_size)),
+		meter:     NewMeter(),
 	}
 }
 
 // NilTimer is a no-op Timer.
 type NilTimer struct {
 	h Histogram
+	m Meter
 }
 
 // Clear is a no-op.
@@ -130,8 +137,10 @@ func (NilTimer) UpdateSince(time.Time) {}
 func (NilTimer) Variance() float64 { return 0.0 }
 
 // StandardTimer is the standard implementation of a Timer and uses a Histogram
+// and Meter.
 type StandardTimer struct {
 	histogram Histogram
+	meter     Meter
 	mutex     sync.Mutex
 }
 
@@ -140,8 +149,10 @@ func (t *StandardTimer) Clear() Timer {
 	defer t.mutex.Unlock()
 	s := &TimerSnapshot{
 		histogram: t.histogram.Snapshot().(*HistogramSnapshot),
+		meter:     t.meter.Snapshot().(*MeterSnapshot),
 	}
 	t.histogram.Clear()
+	t.meter.Clear()
 	return s
 }
 
@@ -176,12 +187,33 @@ func (t *StandardTimer) Percentiles(ps []float64) []float64 {
 	return t.histogram.Percentiles(ps)
 }
 
+// Rate1 returns the one-minute moving average rate of events per second.
+func (t *StandardTimer) Rate1() float64 {
+	return t.meter.Rate1()
+}
+
+// Rate5 returns the five-minute moving average rate of events per second.
+func (t *StandardTimer) Rate5() float64 {
+	return t.meter.Rate5()
+}
+
+// Rate15 returns the fifteen-minute moving average rate of events per second.
+func (t *StandardTimer) Rate15() float64 {
+	return t.meter.Rate15()
+}
+
+// RateMean returns the meter's mean rate of events per second.
+func (t *StandardTimer) RateMean() float64 {
+	return t.meter.RateMean()
+}
+
 // Snapshot returns a read-only copy of the timer.
 func (t *StandardTimer) Snapshot() Timer {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 	return &TimerSnapshot{
 		histogram: t.histogram.Snapshot().(*HistogramSnapshot),
+		meter:     t.meter.Snapshot().(*MeterSnapshot),
 	}
 }
 
@@ -207,6 +239,7 @@ func (t *StandardTimer) Update(d time.Duration) {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 	t.histogram.Update(int64(d))
+	t.meter.Mark(1)
 }
 
 // Record the duration of an event that started at a time and ends now.
@@ -214,6 +247,7 @@ func (t *StandardTimer) UpdateSince(ts time.Time) {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 	t.histogram.Update(int64(time.Since(ts)))
+	t.meter.Mark(1)
 }
 
 // Variance returns the variance of the values in the sample.
@@ -224,6 +258,7 @@ func (t *StandardTimer) Variance() float64 {
 // TimerSnapshot is a read-only copy of another Timer.
 type TimerSnapshot struct {
 	histogram *HistogramSnapshot
+	meter     *MeterSnapshot
 }
 
 // Clear panics.
@@ -255,6 +290,22 @@ func (t *TimerSnapshot) Percentile(p float64) float64 {
 func (t *TimerSnapshot) Percentiles(ps []float64) []float64 {
 	return t.histogram.Percentiles(ps)
 }
+
+// Rate1 returns the one-minute moving average rate of events per second at the
+// time the snapshot was taken.
+func (t *TimerSnapshot) Rate1() float64 { return t.meter.Rate1() }
+
+// Rate5 returns the five-minute moving average rate of events per second at
+// the time the snapshot was taken.
+func (t *TimerSnapshot) Rate5() float64 { return t.meter.Rate5() }
+
+// Rate15 returns the fifteen-minute moving average rate of events per second
+// at the time the snapshot was taken.
+func (t *TimerSnapshot) Rate15() float64 { return t.meter.Rate15() }
+
+// RateMean returns the meter's mean rate of events per second at the time the
+// snapshot was taken.
+func (t *TimerSnapshot) RateMean() float64 { return t.meter.RateMean() }
 
 // Snapshot returns the snapshot.
 func (t *TimerSnapshot) Snapshot() Timer { return t }
