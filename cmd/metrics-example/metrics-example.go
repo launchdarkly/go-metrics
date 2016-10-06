@@ -3,11 +3,9 @@ package main
 import (
 	"errors"
 	"github.com/launchdarkly/go-metrics"
-	// "github.com/rcrowley/go-metrics/stathat"
 	"log"
 	"math/rand"
 	"os"
-	// "syslog"
 	"time"
 )
 

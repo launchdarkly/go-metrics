@@ -67,17 +67,22 @@ func TestTimerZero(t *testing.T) {
 	if 0.0 != ps[2] {
 		t.Errorf("99th percentile: 0.0 != %v\n", ps[2])
 	}
-	if rate1 := tm.Rate1(); 0.0 != rate1 {
-		t.Errorf("tm.Rate1(): 0.0 != %v\n", rate1)
+}
+
+func TestTimerClear(t *testing.T) {
+	tm := NewTimer()
+	tm.Update(100)
+	tm.Update(0)
+	if count := tm.Count(); count != 2  {
+		t.Errorf("count: 2 != %v\n", count)
 	}
-	if rate5 := tm.Rate5(); 0.0 != rate5 {
-		t.Errorf("tm.Rate5(): 0.0 != %v\n", rate5)
+	snapshot := tm.Clear()
+	if count := snapshot.Count(); count != 2 {
+		t.Errorf("count: 2 != %v\n", count)
 	}
-	if rate15 := tm.Rate15(); 0.0 != rate15 {
-		t.Errorf("tm.Rate15(): 0.0 != %v\n", rate15)
-	}
-	if rateMean := tm.RateMean(); 0.0 != rateMean {
-		t.Errorf("tm.RateMean(): 0.0 != %v\n", rateMean)
+
+	if count := tm.Count(); count != 0  {
+		t.Errorf("count: 0 != %v\n", count)
 	}
 }
 

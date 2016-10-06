@@ -58,10 +58,6 @@ func (r *StandardRegistry) MarshalJSON() ([]byte, error) {
 			values["95%"] = ps[2]
 			values["99%"] = ps[3]
 			values["99.9%"] = ps[4]
-			values["1m.rate"] = t.Rate1()
-			values["5m.rate"] = t.Rate5()
-			values["15m.rate"] = t.Rate15()
-			values["mean.rate"] = t.RateMean()
 		}
 		data[name] = values
 	})
