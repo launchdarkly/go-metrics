@@ -70,10 +70,6 @@ func LogScaled(r Registry, freq time.Duration, scale time.Duration, l Logger) {
 				l.Printf("  95%%:         %12.2f%s\n", ps[2]/du, duSuffix)
 				l.Printf("  99%%:         %12.2f%s\n", ps[3]/du, duSuffix)
 				l.Printf("  99.9%%:       %12.2f%s\n", ps[4]/du, duSuffix)
-				l.Printf("  1-min rate:  %12.2f\n", t.Rate1())
-				l.Printf("  5-min rate:  %12.2f\n", t.Rate5())
-				l.Printf("  15-min rate: %12.2f\n", t.Rate15())
-				l.Printf("  mean rate:   %12.2f\n", t.RateMean())
 			}
 		})
 	}

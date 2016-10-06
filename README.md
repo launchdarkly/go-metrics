@@ -1,8 +1,6 @@
 go-metrics
 ==========
 
-![travis build status](https://travis-ci.org/rcrowley/go-metrics.svg?branch=master)
-
 Go port of Coda Hale's Metrics library: <https://github.com/dropwizard/metrics>.
 
 Documentation: <http://godoc.org/github.com/rcrowley/go-metrics>.
@@ -110,7 +108,7 @@ go librato.Librato(metrics.DefaultRegistry,
 Periodically emit every metric to StatHat:
 
 ```go
-import "github.com/rcrowley/go-metrics/stathat"
+import "github.com/launchdarkly/go-metrics/stathat"
 
 go stathat.Stathat(metrics.DefaultRegistry, 10e9, "example@example.com")
 ```
@@ -123,7 +121,7 @@ as well as all your go-metrics.
 
 
 ```go
-import "github.com/rcrowley/go-metrics/exp"
+import "github.com/launchdarkly/go-metrics/exp"
 
 exp.Exp(metrics.DefaultRegistry)
 ```
@@ -132,7 +130,7 @@ Installation
 ------------
 
 ```sh
-go get github.com/rcrowley/go-metrics
+go get github.com/launchdarkly/go-metrics
 ```
 
 StatHat support additionally requires their Go client:
