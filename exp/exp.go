@@ -128,10 +128,6 @@ func (exp *exp) publishTimer(name string, metric metrics.Timer) {
 	exp.getFloat(name + ".95-percentile").Set(float64(ps[2]))
 	exp.getFloat(name + ".99-percentile").Set(float64(ps[3]))
 	exp.getFloat(name + ".999-percentile").Set(float64(ps[4]))
-	exp.getFloat(name + ".one-minute").Set(float64(t.Rate1()))
-	exp.getFloat(name + ".five-minute").Set(float64(t.Rate5()))
-	exp.getFloat(name + ".fifteen-minute").Set(float64((t.Rate15())))
-	exp.getFloat(name + ".mean-rate").Set(float64(t.RateMean()))
 }
 
 func (exp *exp) syncToExpvar() {
