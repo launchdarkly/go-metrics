@@ -142,7 +142,9 @@ func (m *StandardMeter) Clear() {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 
-	m.snapshot = &MeterSnapshot{}
+	m.snapshot = &MeterSnapshot{
+		count: m.snapshot.count, // keep the previous count because we need to aggregate it
+	}
 	m.a1 = NewEWMA1()
 	m.a5 = NewEWMA5()
 	m.a15 = NewEWMA15()
