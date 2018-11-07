@@ -13,9 +13,12 @@ func BenchmarkCounter(b *testing.B) {
 func TestCounterClear(t *testing.T) {
 	c := NewCounter()
 	c.Inc(1)
-	c.Clear()
+	old := c.Clear()
 	if count := c.Count(); 0 != count {
 		t.Errorf("c.Count(): 0 != %v\n", count)
+	}
+	if count := old.Count(); 1 != count {
+		t.Errorf("c.Count(): 1 != %v\n", count)
 	}
 }
 
