@@ -80,7 +80,7 @@ type NilTimer struct {
 
 // Clear is a no-op.
 func (NilTimer) Clear() Timer {
-	return &NilTimer{}
+	return nil
 }
 
 // Count is a no-op.
