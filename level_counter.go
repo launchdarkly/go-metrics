@@ -3,33 +3,33 @@ package metrics
 import "sync/atomic"
 
 // Counters hold an int64 value that can be incremented and decremented.
-type LevelCounter interface {
+type GaugeCounter interface {
   Count() int64
   Dec(int64)
   Inc(int64)
-  Snapshot() LevelCounter
+  Snapshot() GaugeCounter
 }
 
-// GetOrRegisterCounter returns an existing LevelCounter or constructs and registers
-// a new StandardLevelCounter.
-func GetOrRegisterLevelCounter(name string, r Registry) LevelCounter {
+// GetOrRegisterCounter returns an existing GaugeCounter or constructs and registers
+// a new StandardGaugeCounter.
+func GetOrRegisterGaugeCounter(name string, r Registry) GaugeCounter {
   if nil == r {
     r = DefaultRegistry
   }
-  return r.GetOrRegister(name, NewLevelCounter).(LevelCounter)
+  return r.GetOrRegister(name, NewGaugeCounter).(GaugeCounter)
 }
 
-// NewLevelCounter constructs a new StandardLevelCounter.
-func NewLevelCounter() LevelCounter {
+// NewGaugeCounter constructs a new StandardGaugeCounter.
+func NewGaugeCounter() GaugeCounter {
   if UseNilMetrics {
-    return NilLevelCounter{}
+    return NilGaugeCounter{}
   }
-  return &StandardLevelCounter{StandardCounter{0}}
+  return &StandardGaugeCounter{StandardCounter{0}}
 }
 
-// NewRegisteredCounter constructs and registers a new StandardLevelCounter.
-func NewRegisteredLevelCounter(name string, r Registry) LevelCounter {
-  c := NewLevelCounter()
+// NewRegisteredCounter constructs and registers a new StandardGaugeCounter.
+func NewRegisteredGaugeCounter(name string, r Registry) GaugeCounter {
+  c := NewGaugeCounter()
   if nil == r {
     r = DefaultRegistry
   }
@@ -38,47 +38,47 @@ func NewRegisteredLevelCounter(name string, r Registry) LevelCounter {
 }
 
 // CounterSnapshot is a read-only copy of another Counter.
-type LevelCounterSnapshot int64
+type GaugeCounterSnapshot int64
 
 // Count returns the count at the time the snapshot was taken.
-func (c LevelCounterSnapshot) Count() int64 { return int64(c) }
+func (c GaugeCounterSnapshot) Count() int64 { return int64(c) }
 
 // Dec panics.
-func (LevelCounterSnapshot) Dec(int64) {
-  panic("Dec called on a LevelCounterSnapshot")
+func (GaugeCounterSnapshot) Dec(int64) {
+  panic("Dec called on a GaugeCounterSnapshot")
 }
 
 // Inc panics.
-func (LevelCounterSnapshot) Inc(int64) {
-  panic("Inc called on a LevelCounterSnapshot")
+func (GaugeCounterSnapshot) Inc(int64) {
+  panic("Inc called on a GaugeCounterSnapshot")
 }
 
 // Snapshot returns the snapshot.
-func (c LevelCounterSnapshot) Snapshot() LevelCounter { return c }
+func (c GaugeCounterSnapshot) Snapshot() GaugeCounter { return c }
 
 // NilCounter is a no-op Counter.
-type NilLevelCounter struct {
+type NilGaugeCounter struct {
   NilCounter
 }
 
 // Dec is a no-op.
-func (NilLevelCounter) Dec(i int64) {}
+func (NilGaugeCounter) Dec(i int64) {}
 
 // Snapshot is a no-op.
-func (NilLevelCounter) Snapshot() LevelCounter { return NilLevelCounter{} }
+func (NilGaugeCounter) Snapshot() GaugeCounter { return NilGaugeCounter{} }
 
 // NilCounter is a no-op Counter.
-type StandardLevelCounter struct {
+type StandardGaugeCounter struct {
   StandardCounter
 }
 
 // Dec decrements the counter by the given amount.
-func (c *StandardLevelCounter) Dec(i int64) {
+func (c *StandardGaugeCounter) Dec(i int64) {
   atomic.AddInt64(&c.count, -i)
 }
 
 // Snapshot returns a read-only copy of the counter.
-func (c *StandardLevelCounter) Snapshot() LevelCounter {
-  return LevelCounterSnapshot(c.Count())
+func (c *StandardGaugeCounter) Snapshot() GaugeCounter {
+  return GaugeCounterSnapshot(c.Count())
 }
 

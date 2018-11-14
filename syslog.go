@@ -16,7 +16,7 @@ func Syslog(r Registry, d time.Duration, w *syslog.Writer) {
 			switch metric := i.(type) {
 			case Counter:
 				w.Info(fmt.Sprintf("counter %s: count: %d", name, metric.Count()))
-			case LevelCounter:
+			case GaugeCounter:
 				w.Info(fmt.Sprintf("counter %s: value: %d", name, metric.Count()))
 			case Gauge:
 				w.Info(fmt.Sprintf("gauge %s: value: %d", name, metric.Value()))

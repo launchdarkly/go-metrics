@@ -29,7 +29,7 @@ func WriteOnce(r Registry, w io.Writer) {
 		case Counter:
 			fmt.Fprintf(w, "counter %s\n", namedMetric.name)
 			fmt.Fprintf(w, "  count:       %9d\n", metric.Count())
-		case LevelCounter:
+		case GaugeCounter:
 			fmt.Fprintf(w, "counter %s\n", namedMetric.name)
 			fmt.Fprintf(w, "  value:       %9d\n", metric.Count())
 		case Gauge:

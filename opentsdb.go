@@ -71,7 +71,7 @@ func openTSDB(c *OpenTSDBConfig) error {
 		switch metric := i.(type) {
 		case Counter:
 			fmt.Fprintf(w, "put %s.%s.count %d %d host=%s\n", c.Prefix, name, now, metric.Count(), shortHostname)
-		case LevelCounter:
+		case GaugeCounter:
 			fmt.Fprintf(w, "put %s.%s.value %d %d host=%s\n", c.Prefix, name, now, metric.Count(), shortHostname)
 		case Gauge:
 			fmt.Fprintf(w, "put %s.%s.value %d %d host=%s\n", c.Prefix, name, now, metric.Value(), shortHostname)
