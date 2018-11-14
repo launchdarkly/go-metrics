@@ -83,6 +83,11 @@ func (exp *exp) publishCounter(name string, metric metrics.Counter) {
 	v.Set(metric.Count())
 }
 
+func (exp *exp) publishGaugeCounter(name string, metric metrics.GaugeCounter) {
+	v := exp.getInt(name)
+	v.Set(metric.Count())
+}
+
 func (exp *exp) publishGauge(name string, metric metrics.Gauge) {
 	v := exp.getInt(name)
 	v.Set(metric.Value())
@@ -139,6 +144,8 @@ func (exp *exp) syncToExpvar() {
 		switch i.(type) {
 		case metrics.Counter:
 			exp.publishCounter(name, i.(metrics.Counter))
+		case metrics.GaugeCounter:
+			exp.publishGaugeCounter(name, i.(metrics.GaugeCounter))
 		case metrics.Gauge:
 			exp.publishGauge(name, i.(metrics.Gauge))
 		case metrics.GaugeFloat64:
