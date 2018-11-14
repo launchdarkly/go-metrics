@@ -10,16 +10,16 @@ type LevelCounter interface {
   Snapshot() LevelCounter
 }
 
-// GetOrRegisterCounter returns an existing Counter or constructs and registers
-// a new StandardCounter.
-func GetOrRegisterLevelCounter(name string, r Registry) Counter {
+// GetOrRegisterCounter returns an existing LevelCounter or constructs and registers
+// a new StandardLevelCounter.
+func GetOrRegisterLevelCounter(name string, r Registry) LevelCounter {
   if nil == r {
     r = DefaultRegistry
   }
-  return r.GetOrRegister(name, NewCounter).(Counter)
+  return r.GetOrRegister(name, NewLevelCounter).(LevelCounter)
 }
 
-// NewCounter constructs a new StandardCounter.
+// NewLevelCounter constructs a new StandardLevelCounter.
 func NewLevelCounter() LevelCounter {
   if UseNilMetrics {
     return NilLevelCounter{}

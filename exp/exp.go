@@ -139,6 +139,8 @@ func (exp *exp) syncToExpvar() {
 		switch i.(type) {
 		case metrics.Counter:
 			exp.publishCounter(name, i.(metrics.Counter))
+		case metrics.Counter:
+			exp.publishCounter(name, i.(metrics.Counter))
 		case metrics.Gauge:
 			exp.publishGauge(name, i.(metrics.Gauge))
 		case metrics.GaugeFloat64:
