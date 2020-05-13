@@ -40,6 +40,19 @@ func (r *StandardRegistry) MarshalJSON() ([]byte, error) {
 			values["95%"] = ps[2]
 			values["99%"] = ps[3]
 			values["99.9%"] = ps[4]
+		case HistogramFloat64:
+			h := metric.Snapshot()
+			ps := h.Percentiles([]float64{0.5, 0.75, 0.95, 0.99, 0.999})
+			values["count"] = h.Count()
+			values["min"] = h.Min()
+			values["max"] = h.Max()
+			values["mean"] = h.Mean()
+			values["stddev"] = h.StdDev()
+			values["median"] = ps[0]
+			values["75%"] = ps[1]
+			values["95%"] = ps[2]
+			values["99%"] = ps[3]
+			values["99.9%"] = ps[4]
 		case Meter:
 			m := metric.Snapshot()
 			values["count"] = m.Count()
