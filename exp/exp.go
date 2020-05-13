@@ -111,6 +111,21 @@ func (exp *exp) publishHistogram(name string, metric metrics.Histogram) {
 	exp.getFloat(name + ".999-percentile").Set(float64(ps[4]))
 }
 
+func (exp *exp) publishHistogramFloat64(name string, metric metrics.HistogramFloat64) {
+	h := metric.Snapshot()
+	ps := h.Percentiles([]float64{0.5, 0.75, 0.95, 0.99, 0.999})
+	exp.getInt(name + ".count").Set(h.Count())
+	exp.getFloat(name + ".min").Set(h.Min())
+	exp.getFloat(name + ".max").Set(h.Max())
+	exp.getFloat(name + ".mean").Set(h.Mean())
+	exp.getFloat(name + ".std-dev").Set(h.StdDev())
+	exp.getFloat(name + ".50-percentile").Set(ps[0])
+	exp.getFloat(name + ".75-percentile").Set(ps[1])
+	exp.getFloat(name + ".95-percentile").Set(ps[2])
+	exp.getFloat(name + ".99-percentile").Set(ps[3])
+	exp.getFloat(name + ".999-percentile").Set(ps[4])
+}
+
 func (exp *exp) publishMeter(name string, metric metrics.Meter) {
 	m := metric.Snapshot()
 	exp.getInt(name + ".count").Set(m.Count())
@@ -151,6 +166,8 @@ func (exp *exp) syncToExpvar() {
 		case metrics.GaugeFloat64:
 			exp.publishGaugeFloat64(name, i.(metrics.GaugeFloat64))
 		case metrics.Histogram:
+			exp.publishHistogram(name, i.(metrics.Histogram))
+		case metrics.HistogramFloat64:
 			exp.publishHistogram(name, i.(metrics.Histogram))
 		case metrics.Meter:
 			exp.publishMeter(name, i.(metrics.Meter))

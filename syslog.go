@@ -42,6 +42,23 @@ func Syslog(r Registry, d time.Duration, w *syslog.Writer) {
 					ps[3],
 					ps[4],
 				))
+			case HistogramFloat64:
+				h := metric.Snapshot()
+				ps := h.Percentiles([]float64{0.5, 0.75, 0.95, 0.99, 0.999})
+				w.Info(fmt.Sprintf(
+					"histogram %s: count: %d min: %.2f max: %.2f mean: %.2f stddev: %.2f median: %.2f 75%%: %.2f 95%%: %.2f 99%%: %.2f 99.9%%: %.2f",
+					name,
+					h.Count(),
+					h.Min(),
+					h.Max(),
+					h.Mean(),
+					h.StdDev(),
+					ps[0],
+					ps[1],
+					ps[2],
+					ps[3],
+					ps[4],
+				))
 			case Meter:
 				m := metric.Snapshot()
 				w.Info(fmt.Sprintf(

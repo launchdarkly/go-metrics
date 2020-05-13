@@ -2,11 +2,12 @@ package main
 
 import (
 	"errors"
-	"github.com/launchdarkly/go-metrics"
 	"log"
 	"math/rand"
 	"os"
 	"time"
+
+	"github.com/launchdarkly/go-metrics"
 )
 
 const fanout = 10
@@ -89,6 +90,24 @@ func main() {
 		go func() {
 			for {
 				h.Update(47)
+				time.Sleep(400e6)
+			}
+		}()
+	}
+
+	s64 := metrics.NewExpDecaySampleFloat64(1028, 0.015)
+	h64 := metrics.NewHistogramFloat64(s64)
+	r.Register("bang", h64)
+	for i := 0; i < fanout; i++ {
+		go func() {
+			for {
+				h64.Update(19)
+				time.Sleep(300e6)
+			}
+		}()
+		go func() {
+			for {
+				h64.Update(47)
 				time.Sleep(400e6)
 			}
 		}()
